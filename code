@@ -1,0 +1,70 @@
+import matplotlib.pyplot as plt
+print("Please make sure of the following: gene name is in column 6, protein information in column 8, gene expression for control in column 9 and gene expression for treatment group is in column 10.")
+inf=input("Please enter the file name: ")
+f=open(inf,'r')
+f.readline()
+upregulated_genes={}
+downregulated_genes={}
+normally_regulated_genes={}
+upregulated=input("Please write name of file to store upregulated genes: ")
+downregulated=input("Please write name of file to store downregulated genes: ")
+outfup=open(upregulated, 'w')
+outfdown=open(downregulated, 'w')
+for line in f:
+    line=line.strip()
+    field=line.split(',')
+    #print(field[5])
+    try:
+        if field[9]=='0' or field[8]=='0':
+            regulation=(int(field[9])-int(field[8]))
+            if regulation>3 or regulation==3:
+                upregulated_genes[field[5]]=field[7]
+            elif regulation<-3 or regulation==-3:
+                downregulated_genes[field[5]]=field[7]
+            elif regulation>-3 or regulation<3:
+                normally_regulated_genes[field[5]]=field[7]
+                
+        elif field[9]!='0' or field[8]!='0':
+            regulation=int(field[9])/int(field[8])
+            if regulation>1.5 or regulation==1.5:
+                upregulated_genes[field[5]]=field[7]            
+            elif regulation<0.66 or regulation==0.66:
+                downregulated_genes[field[5]]=field[7]
+            elif regulation<1.5 or regulation >0.66:
+                normally_regulated_genes[field[5]]=field[7]
+        
+    except:
+            ZeroDivisionError
+          
+for k,v in upregulated_genes.items():
+    outfup.write('%s , %s\n' % (k,v))
+    up_count=len(upregulated_genes)
+#print(up_count)
+for k,v in downregulated_genes.items():
+    outfdown.write('%s , %s\n' % (k,v))
+    down_count=len(downregulated_genes)
+for k,v in normally_regulated_genes.items():
+    normal_count=len(normally_regulated_genes)
+print("The number of genes upregulated: ", up_count)
+print("The numbers of genes downregulated: ", down_count)
+print("The number of genes normally regulated: ", normal_count)
+
+    
+title=input("Please enter the title for piechart: ")    
+labels = 'upregulated genes', 'downregulated genes', 'normally regulated genes'
+sizes = [int(up_count), int(down_count), int(normal_count)]
+explode = (0, 0.1, 0)  # only "explode" the 2nd slice ('downregulated')
+
+fig1, ax1 = plt.subplots()
+ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90)
+plt.title(title)
+ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+plt.show()
+#plot.save
+
+
+f.close()
+outfup.close()
+outfdown.close()
